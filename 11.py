@@ -5,3 +5,4 @@ import matplotlib.pyplot as plt
 
 data = pd.read_csv('test (1).csv')
 print(data['category'])
+
