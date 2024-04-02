@@ -1,3 +1,7 @@
+import io
+import os
+import shutil
+import tensforflow as tf
 import matplotlib
 import pandas as pd
 import numpy as np
