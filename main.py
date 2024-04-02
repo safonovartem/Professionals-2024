@@ -8,6 +8,8 @@ import string
 from nltk import SnowballStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from razdel import tokenize, sentenize
+from pymorphy2 import MorphAnalyzer
 
 nltk.download("stopwords", quiet=True) # поддерживает удаление стоп-слов
 nltk.download('punkt', quiet=True) # делит текст на список предложений
@@ -60,14 +62,41 @@ lemmatized_words = [stemmer.stem(word) for word in tokens]
 # Удаление стоп слов
 stop_words = set(stopwords.words('russian'))
 filtered_tokens = [word for word in lemmatized_words if word not in stop_words]
-print(filtered_tokens)
+#print(filtered_tokens)
 
-# Удаления слова error
-# filtered_tokens_new = re.sub(['error'], '', str(filtered_tokens))
-# print(filtered_tokens_new)
 
-#
 
+# Морфологический анализ
+
+def segment_text(doc: str|dict) -> dict:
+    if isinstance(doc, str):
+        doc = {"text": doc}
+
+    doc["tokens"] = []
+
+    for sent in sentenize(doc["text"]):
+        doc["tokens"].append([_.text for _ in tokenize(sent.text)])
+
+    return doc
+
+analyzer = MorphAnalyzer()
+stop_words = stopwords.words("russian")
+pos = {'NOUN','ADJF','ADJS','VERB','INFN','PRTF','PRTS'}
+
+def extract_candidates(doc: dict, stop_words: list = stop_words, pos: set = pos) -> dict:
+    res = set()
+    for sent in doc["tokens"]:
+        for token in sent:
+            if token in stop_words or token in res:
+                continue
+
+            parsed = analyzer.parse(token)[0]
+            if parsed.tag.POS not in pos:
+                continue
+            res.add(token)
+    doc["candidates"] = res
+
+    return doc
 
 
 
