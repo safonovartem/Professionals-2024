@@ -10,6 +10,8 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from razdel import tokenize, sentenize
 from pymorphy2 import MorphAnalyzer
+from navec import Navec
+import slovnet
 
 nltk.download("stopwords", quiet=True) # поддерживает удаление стоп-слов
 nltk.download('punkt', quiet=True) # делит текст на список предложений
@@ -99,4 +101,9 @@ def extract_candidates(doc: dict, stop_words: list = stop_words, pos: set = pos)
     return doc
 
 
+# Синтактический анализ
+
+navec = Navec.load("navec_news_v1_1B_250K_300d_100q.tar")
+syntax = slovnet.Syntax.load("slovnet_syntax_news_v1.tar")
+syntax.navec(navec)
 
