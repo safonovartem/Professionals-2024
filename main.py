@@ -1,7 +1,7 @@
 import io
 import os
 import shutil
-import tensforflow as tf
+#import tensforflow as tf
 import matplotlib
 import pandas as pd
 import numpy as np
@@ -69,7 +69,7 @@ lemmatized_words = [stemmer.stem(word) for word in tokens]
 stop_words = set(stopwords.words('russian'))
 filtered_tokens = [word for word in lemmatized_words if word not in stop_words]
 # new_filtered_tokens = set(filtered_tokens)
-#print(filtered_tokens)
+print(filtered_tokens)
 
 
 # Морфологический анализ
