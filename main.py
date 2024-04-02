@@ -46,13 +46,13 @@ without_punct_words= datasets.translate(str.maketrans('', '', string.punctuation
 numbers = r'[0-9]'
 no_numbers_words = re.sub(numbers, '', without_punct_words)
 #print(no_numbers_words)
-
-# Преобразование в строки в нижний регистр
-low_words = no_numbers_words.lower()
-#print(low_words)
+#
+# # Преобразование в строки в нижний регистр
+# low_words = no_numbers_words.lower()
+# #print(low_words)
 
 #Токенизация
-word_tokenize = word_tokenize(low_words)
+word_tokenize = word_tokenize(no_numbers_words)
 #print(word_tokenize)
 
 # Лемматизация
@@ -64,12 +64,11 @@ lemmatized_words = [stemmer.stem(word) for word in tokens]
 # Удаление стоп слов
 stop_words = set(stopwords.words('russian'))
 filtered_tokens = [word for word in lemmatized_words if word not in stop_words]
-#print(filtered_tokens)
-
+# new_filtered_tokens = set(filtered_tokens)
+print(filtered_tokens)
 
 
 # Морфологический анализ
-
 def segment_text(doc: str|dict) -> dict:
     if isinstance(doc, str):
         doc = {"text": doc}
@@ -102,22 +101,9 @@ def extract_candidates(doc: dict, stop_words: list = stop_words, pos: set = pos)
 
 
 # Синтактический анализ
-
 navec = Navec.load("navec_news_v1_1B_250K_300d_100q.tar")
 syntax = slovnet.Syntax.load("slovnet_syntax_news_v1.tar")
 syntax.navec(navec)
-
-sent = "Я хочу домой чтобы играть и веселиться"
-doc = segment_text(sent)
-
-syntax_markup = syntax(doc["tokens"][0])
-
-for token_info in syntax_markup.tokens:
-    print(token_info)
-
-sent_word_id = {}
-for token in syntax_markup.tokens:
-    sent_word_id[token.id] = token.text
 
 def syntax_collocations(doc: dict, sytax: slovnet.api.Syntax = syntax) -> dict:
     syntax_colloc = []
@@ -138,4 +124,8 @@ def syntax_collocations(doc: dict, sytax: slovnet.api.Syntax = syntax) -> dict:
 doc = segment_text(datasets)
 doc = extract_candidates(doc)
 doc = syntax_collocations(doc)
-print(doc["collocations"])
+a = list(doc["collocations"])
+#print(a)
+
+New_dataset = a + filtered_tokens
+print(New_dataset)
