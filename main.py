@@ -107,3 +107,35 @@ navec = Navec.load("navec_news_v1_1B_250K_300d_100q.tar")
 syntax = slovnet.Syntax.load("slovnet_syntax_news_v1.tar")
 syntax.navec(navec)
 
+sent = "Я хочу домой чтобы играть и веселиться"
+doc = segment_text(sent)
+
+syntax_markup = syntax(doc["tokens"][0])
+
+for token_info in syntax_markup.tokens:
+    print(token_info)
+
+sent_word_id = {}
+for token in syntax_markup.tokens:
+    sent_word_id[token.id] = token.text
+
+def syntax_collocations(doc: dict, sytax: slovnet.api.Syntax = syntax) -> dict:
+    syntax_colloc = []
+    for sent in doc["tokens"]:
+        syntax_markup = syntax(sent)
+
+        sent_word_id = {}
+        for token in syntax_markup.tokens:
+            sent_word_id[token.id] = token.text
+
+        for token in syntax_markup.tokens:
+            if token.head_id != '0' and token.text in doc["candidates"]:
+                syntax_colloc.append(sent_word_id[token.head_id] + ' ' + token.text)
+    doc["collocations"] = set(syntax_colloc)
+
+    return doc
+
+doc = segment_text(datasets)
+doc = extract_candidates(doc)
+doc = syntax_collocations(doc)
+print(doc["collocations"])
