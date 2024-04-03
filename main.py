@@ -21,6 +21,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
 from numpy import asarray
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn import datasets
+from  sklearn.manifold import TSNE
 
 #%matplotlib inline
 
@@ -181,22 +183,40 @@ for text in no_numbers_words:
     # add the word counts to the bag-of-words model
     bow_model.append(word_counts)
 
+new_vocab = list(vocab)
+print(new_vocab)
+x_vocab = np.array(new_vocab)
+#print(x_vocab)
+
 # распечатать словарь
-print(vocab)
+#print(vocab)
 
 # распечатать количество слов для первого текстового документа
-print(bow_model[3])
+#print(bow_model[3])
 
 
 # Порядковое кодирование
 my_text = asarray(New_dataset)
-print(my_text)
+#print(my_text)
 my_text = my_text[:,None]
 encoder = OrdinalEncoder()
 result = encoder.fit_transform(my_text)
 print(result)
 
+# Метод t-SNE
 
+# определям скоость и модель обучения
+model = TSNE(learning_rate=100)
+
+# обучаем модель
+transformed = model.fit_transform(x_vocab)
+
+# результат
+x_axis = transformed[:, 0]
+y_axis = transformed[:, 1]
+
+plt.scatter(x_axis, y_axis, c=x_vocab)
+plt.show()
 #
 # # Кластеизация
 #
