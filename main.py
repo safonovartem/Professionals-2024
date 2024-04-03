@@ -30,6 +30,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from yellowbrick.cluster import SilhouetteVisualizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 
 nltk.download("stopwords", quiet=True) # поддерживает удаление стоп-слов
 nltk.download('punkt', quiet=True) # делит текст на список предложений
@@ -163,7 +168,7 @@ X_bow = vectorizer.fit_transform(New_dataset)
 
 # Преобразуйте разреженную матрицу в плотную для лучшей визуализации
 Bow = X_bow.toarray()
-print(Bow)
+#print(Bow)
 
 # Получить имена функций (слова)
 #print(vectorizer.get_feature_names_out())
@@ -178,7 +183,7 @@ X_tfidf = vectorizer.fit_transform(New_dataset)
 
 # Convert sparse matrix to dense matrix for better visualization
 TF_vector = X_tfidf.toarray
-print(TF_vector())
+#print(TF_vector())
 
 # Get feature names (words)
 #print(vectorizer.get_feature_names_out())
@@ -228,4 +233,44 @@ silhouette_visualizer.fit(Bow)
 silhouette_visualizer.show()
 
 
-#
+# Загрузка теста и разделение данных
+test = pd.read_csv('test (1).csv')
+test_text = test['text']
+test_text = test_text[0:46]
+test_topic = test['category']
+test_topic = test_topic[0:46]
+
+# Разделите набор данных на обучающий и тестовый наборы (80 % обучение, 20 % тестирование)
+X_train, X_test, y_train, y_test = train_test_split(test_text, test_topic, test_size=0.2, random_state=42)
+
+# Define different vectorization methods
+vectorizers = {
+    'CountVectorizer': CountVectorizer(),
+    'TfidfVectorizer': TfidfVectorizer()
+}
+
+# Define different algorithms
+models = {
+    'Logistic Regression': LogisticRegression(),
+    'Multinomial Naive Bayes': MultinomialNB(),
+    'Random Forest': RandomForestClassifier()
+}
+
+# Train models based on different algorithms and vectorization methods
+for vec_name, vectorizer in vectorizers.items():
+    for model_name, model in models.items():
+        # Vectorize the training and test data
+        X_train_vec = vectorizer.fit_transform(X_train)
+        X_test_vec = vectorizer.transform(X_test)
+
+        # Train the model
+        model.fit(X_train_vec, y_train)
+
+        # Make predictions on the test set
+        y_pred = model.predict(X_test_vec)
+
+        # Evaluate the model
+        accuracy = accuracy_score(y_test, y_pred)
+
+        # Print the results
+        print(f'{vec_name} + {model_name} Accuracy: {accuracy:.4f}')
