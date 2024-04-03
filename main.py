@@ -2,6 +2,8 @@ import io
 import csv
 import os
 import shutil
+from typing import Union
+from sklearn.feature_extraction.text import TfidfVectorizer
 #import tensforflow as tf
 import matplotlib
 import pandas as pd
@@ -23,29 +25,27 @@ from numpy import asarray
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn import datasets
 from  sklearn.manifold import TSNE
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+from yellowbrick.cluster import SilhouetteVisualizer
 
-#%matplotlib inline
 
 nltk.download("stopwords", quiet=True) # поддерживает удаление стоп-слов
 nltk.download('punkt', quiet=True) # делит текст на список предложений
 nltk.download('wordnet', quiet=True) # проводит лемматизацию
 pd.set_option('display.expand_frame_repr', False)
 
+
+
 #Добавляю датасет Data
-# with open ('data.csv', newline = '') as csvfile:
-#     reader = csv.DictReader(csvfile, delimiter = ";")
-#     for row in reader:
-#         print(row['Text'], '|' , row['Category'])
 data = pd.read_csv('data.csv')
 parse_dates = ['Text']
 #print(data)
 
 
 #Добавляю датасет Data
-# with open ('outer_msgs_demo.csv', newline = '') as csvfile:
-#     reader = csv.DictReader(csvfile, delimiter = ";")
-#     for row in reader:
-#         print(row['Text'], '|' , row['Category'])
 demo = pd.read_csv('outer_msgs_demo.csv')
 parse_dates = ['Text']
 demo = demo['Text']
@@ -71,9 +71,6 @@ numbers = r'[0-9]'
 no_numbers_words = re.sub(numbers, '', without_punct_words)
 #print(no_numbers_words)
 
-# Преобразование в строки в нижний регистр
-low_words = no_numbers_words.lower()
-#print(low_words)
 
 #Токенизация
 word_tokenize = word_tokenize(no_numbers_words)
@@ -93,7 +90,7 @@ filtered_tokens = [word for word in lemmatized_words if word not in stop_words]
 
 
 # Морфологический анализ
-def segment_text(doc: str|dict) -> dict:
+def segment_text(doc: Union[str, dict]) -> dict:
     if isinstance(doc, str):
         doc = {"text": doc}
 
@@ -155,75 +152,100 @@ New_dataset = a + filtered_tokens
 #print(New_dataset)
 
 
-# Bag of words
+# Векторизация (Bag of words)
 
-# создать словарный запас
-vocab = set()
+# Инициализировать CountVectorizer
+vectorizer = CountVectorizer()
 
-# создать модель мешка слов
-bow_model = []
+# Сопоставьте и преобразуйте данные
+X_bow = vectorizer.fit_transform(New_dataset)
 
-for text in no_numbers_words:
-    # создать словарь для хранения количества слов
-    word_counts = {}
+# Преобразуйте разреженную матрицу в плотную для лучшей визуализации
+Bow = X_bow.toarray()
+print(Bow)
 
-    # токенизация
-    tokens = nltk.word_tokenize(text)
+# Получить имена функций (слова)
+#print(vectorizer.get_feature_names_out())
 
-    # обновляем список
-    vocab.update(tokens)
+# Векторизация (TF-IDF)
 
-    # подсчитать количество вхождений каждого слова
-    for word in tokens:
-        if word in word_counts:
-            word_counts[word] += 1
-        else:
-            word_counts[word] = 1
+# Initialize TfidfVectorizer
+vectorizer = TfidfVectorizer()
 
-    # add the word counts to the bag-of-words model
-    bow_model.append(word_counts)
+# Fit and transform the data
+X_tfidf = vectorizer.fit_transform(New_dataset)
 
-new_vocab = list(vocab)
-print(new_vocab)
-x_vocab = np.array(new_vocab)
-#print(x_vocab)
+# Convert sparse matrix to dense matrix for better visualization
+TF_vector = X_tfidf.toarray
+print(TF_vector())
 
-# распечатать словарь
-#print(vocab)
-
-# распечатать количество слов для первого текстового документа
-#print(bow_model[3])
+# Get feature names (words)
+#print(vectorizer.get_feature_names_out())
 
 
-# Порядковое кодирование
-my_text = asarray(New_dataset)
-#print(my_text)
-my_text = my_text[:,None]
-encoder = OrdinalEncoder()
-result = encoder.fit_transform(my_text)
-print(result)
+# Кластеризация
+
+# Загрузить данные из CSV (при условии, что «data.csv» содержит столбцы «тема» и «текст»)
+# data = pd.read_csv('data.csv')
+
+# # Предварительная обработка текста и векторизация
+# vectorizer = TfidfVectorizer(stop_words='english')
+# X = vectorizer.fit_transform(data['text'])
+
+# Определить диапазон кластеров для K-средних
+range_n_clusters = [2, 3, 4, 5, 6]
+
+# Инициализируем списки для хранения оценок силуэтов
+kmeans_scores = []
+hierarchical_scores = []
+
+# Выполняем кластеризацию K-средних
+for n_clusters in range_n_clusters:
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    cluster_labels = kmeans.fit_predict(Bow)
+    silhouette_avg = silhouette_score(Bow, cluster_labels)
+    kmeans_scores.append(silhouette_avg)
+
+# Выполняем иерархическую кластеризацию
+hierarchical = AgglomerativeClustering(n_clusters=3)
+hierarchical_labels = hierarchical.fit_predict(Bow)
+hierarchical_score = silhouette_score(Bow, hierarchical_labels)
+hierarchical_scores.append(hierarchical_score)
+
+# Визуализация оценок силуэта
+plt.plot(range_n_clusters, kmeans_scores, label='K-means')
+#plt.plot(range_n_clusters, hierarchical_scores, label='Hierarchical')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Silhouette Score')
+plt.title('Silhouette Score for Different Clustering Algorithms')
+plt.legend()
+plt.show()
+
+# Визуализация кластерных структур с помощью визуализатора силуэтов
+silhouette_visualizer = SilhouetteVisualizer(KMeans(n_clusters=3, random_state=42))
+silhouette_visualizer.fit(Bow)
+silhouette_visualizer.show()
+
 
 # Метод t-SNE
 
 # определям скоость и модель обучения
-model = TSNE(learning_rate=100)
+#model = TSNE(learning_rate=100)
 
 # обучаем модель
-transformed = model.fit_transform(x_vocab)
+#transformed = model.fit_transform(x_vocab)
 
 # результат
-x_axis = transformed[:, 0]
-y_axis = transformed[:, 1]
+# x_axis = transformed[:, 0]
+# y_axis = transformed[:, 1]
 
-plt.scatter(x_axis, y_axis, c=x_vocab)
-plt.show()
-#
-# # Кластеизация
-#
-# Category = ['tennis', 'autosport', ';autosport',]
+# plt.scatter(x_axis, y_axis, c=x_vocab)
+# plt.show()
 
 
-#Добавляю test
+
+
+# #Добавляю test
 # with open ('test (1).csv', newline = '') as csvfile:
 #     reader = csv.DictReader(csvfile)
 #     for row in reader:
