@@ -31,12 +31,10 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from yellowbrick.cluster import SilhouetteVisualizer
 
-
 nltk.download("stopwords", quiet=True) # поддерживает удаление стоп-слов
 nltk.download('punkt', quiet=True) # делит текст на список предложений
 nltk.download('wordnet', quiet=True) # проводит лемматизацию
 pd.set_option('display.expand_frame_repr', False)
-
 
 
 #Добавляю датасет Data
@@ -44,12 +42,12 @@ data = pd.read_csv('data.csv')
 parse_dates = ['Text']
 #print(data)
 
-
 #Добавляю датасет Data
 demo = pd.read_csv('outer_msgs_demo.csv')
 parse_dates = ['Text']
 demo = demo['Text']
 #print(demo)
+
 
 #Преобрзование в строку data
 x = re. sub (' [^a-zA-Z] ', '', str (data))
@@ -58,13 +56,14 @@ x = re. sub (' [^a-zA-Z] ', '', str (data))
 # Преобрзование в строку demo
 y = re.sub(' [^a-zA-Z] ', '', str (demo))
 #print(y)
-
 datasets = x + y
 #print(datasets)
 
-# # Удаление пунктуации
+
+# Удаление пунктуации
 without_punct_words= datasets.translate(str.maketrans('', '', string.punctuation))
 #print(without_punct_words)
+
 
 #Удаление чисел
 numbers = r'[0-9]'
@@ -76,11 +75,13 @@ no_numbers_words = re.sub(numbers, '', without_punct_words)
 word_tokenize = word_tokenize(no_numbers_words)
 #print(word_tokenize)
 
+
 # Лемматизация
 stemmer = SnowballStemmer("russian")
 tokens = word_tokenize
 lemmatized_words = [stemmer.stem(word) for word in tokens]
 #print(lemmatized_words)
+
 
 # Удаление стоп слов
 stop_words = set(stopwords.words('russian'))
@@ -167,8 +168,8 @@ print(Bow)
 # Получить имена функций (слова)
 #print(vectorizer.get_feature_names_out())
 
-# Векторизация (TF-IDF)
 
+# Векторизация (TF-IDF)
 # Initialize TfidfVectorizer
 vectorizer = TfidfVectorizer()
 
@@ -227,37 +228,4 @@ silhouette_visualizer.fit(Bow)
 silhouette_visualizer.show()
 
 
-# Метод t-SNE
-
-# определям скоость и модель обучения
-#model = TSNE(learning_rate=100)
-
-# обучаем модель
-#transformed = model.fit_transform(x_vocab)
-
-# результат
-# x_axis = transformed[:, 0]
-# y_axis = transformed[:, 1]
-
-# plt.scatter(x_axis, y_axis, c=x_vocab)
-# plt.show()
-
-
-
-
-# #Добавляю test
-# with open ('test (1).csv', newline = '') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         print(row['text'], '|' , row['category'])
 #
-# test = pd.read_csv('test (1).csv')
-# # темы текстов из которых буду брать текста
-# topic = ['football', 'volleyball', 'autosport', 'hockey', 'tennis', 'esport', 'basketball', 'martial_arts', 'winter_sport', 'athletics', 'extreme', 'motosport', 'boardgames']
-# number_of_text = 2 # по 2 текста на тему
-#
-# df_res = pd.DataFrame()
-#
-# for topic in tqdm(topic):
-#     df_topic = test[test['category'] == topic][:number_of_text]
-#     df_res = pd.concat(df_topic, pd.DataFrame([df_topic]), ignore_index=True)
