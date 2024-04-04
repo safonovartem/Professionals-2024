@@ -211,21 +211,21 @@ hierarchical_labels = hierarchical.fit_predict(Bow)
 hierarchical_score = silhouette_score(Bow, hierarchical_labels)
 hierarchical_scores.append(hierarchical_score)
 
-# Визуализация оценок силуэта k -средних
-plt.plot(range_n_clusters, kmeans_scores, label='K-means')
-plt.xlabel('Количество кластеров')
-plt.ylabel('Оценка силуэта')
-plt.title('Оценка силуэта для различных алгоритмов кластеризации')
-plt.legend()
-plt.show()
-
-# Визуализация оценок силуэта иерархической кластеризации
-plt.plot(hierarchical_scores, label='Hierarchy-means')
-plt.xlabel('Количество кластеров')
-plt.ylabel('Оценка силуэта')
-plt.title('Оценка силуэта для различных алгоритмов кластеризации')
-plt.legend()
-plt.show()
+# # Визуализация оценок силуэта k -средних
+# plt.plot(range_n_clusters, kmeans_scores, label='K-means')
+# plt.xlabel('Количество кластеров')
+# plt.ylabel('Оценка силуэта')
+# plt.title('Оценка силуэта для различных алгоритмов кластеризации')
+# plt.legend()
+# plt.show()
+#
+# # Визуализация оценок силуэта иерархической кластеризации
+# plt.plot(hierarchical_scores, label='Hierarchy-means')
+# plt.xlabel('Количество кластеров')
+# plt.ylabel('Оценка силуэта')
+# plt.title('Оценка силуэта для различных алгоритмов кластеризации')
+# plt.legend()
+# plt.show()
 
 
 # # Визуализация кластерных структур с помощью визуализатора силуэтов
@@ -240,10 +240,10 @@ test_text = test['text']
 test_text = test_text[0:46]
 test_topic = test['category']
 test_topic = test_topic[0:46]
-print(test_text,test_topic)
+#print(test_text,test_topic)
 
-# Разделите набор данных на обучающий и тестовый наборы (80 % обучение, 20 % тестирование)
-X_train, X_test, y_train, y_test = train_test_split(test_text, test_topic, test_size=0.2, random_state=42)
+# Разделите набор данных на обучающий и тестовый наборы
+X_train, X_test, y_train, y_test = train_test_split(test_text, test_topic, test_size=0.2, random_state=40)
 
 # Два метода векторизации
 vectorizers = {
