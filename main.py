@@ -191,13 +191,6 @@ TF_vector = X_tfidf.toarray
 
 # Кластеризация
 
-# Загрузить данные из CSV (при условии, что «data.csv» содержит столбцы «тема» и «текст»)
-# data = pd.read_csv('data.csv')
-
-# # Предварительная обработка текста и векторизация
-# vectorizer = TfidfVectorizer(stop_words='english')
-# X = vectorizer.fit_transform(data['text'])
-
 # Определить диапазон кластеров для K-средних
 range_n_clusters = [2, 3, 4, 5, 6]
 
@@ -218,19 +211,27 @@ hierarchical_labels = hierarchical.fit_predict(Bow)
 hierarchical_score = silhouette_score(Bow, hierarchical_labels)
 hierarchical_scores.append(hierarchical_score)
 
-# Визуализация оценок силуэта
+# Визуализация оценок силуэта k -средних
 plt.plot(range_n_clusters, kmeans_scores, label='K-means')
-#plt.plot(range_n_clusters, hierarchical_scores, label='Hierarchical')
-plt.xlabel('Number of Clusters')
-plt.ylabel('Silhouette Score')
-plt.title('Silhouette Score for Different Clustering Algorithms')
+plt.xlabel('Количество кластеров')
+plt.ylabel('Оценка силуэта')
+plt.title('Оценка силуэта для различных алгоритмов кластеризации')
 plt.legend()
 plt.show()
 
-# Визуализация кластерных структур с помощью визуализатора силуэтов
-silhouette_visualizer = SilhouetteVisualizer(KMeans(n_clusters=3, random_state=42))
-silhouette_visualizer.fit(Bow)
-silhouette_visualizer.show()
+# Визуализация оценок силуэта иерархической кластеризации
+plt.plot(hierarchical_scores, label='Hierarchy-means')
+plt.xlabel('Количество кластеров')
+plt.ylabel('Оценка силуэта')
+plt.title('Оценка силуэта для различных алгоритмов кластеризации')
+plt.legend()
+plt.show()
+
+
+# # Визуализация кластерных структур с помощью визуализатора силуэтов
+# silhouette_visualizer = SilhouetteVisualizer(KMeans(n_clusters=3, random_state=42))
+# silhouette_visualizer.fit(Bow)
+# silhouette_visualizer.show()
 
 
 # Загрузка теста и разделение данных
@@ -244,34 +245,34 @@ print(test_text,test_topic)
 # Разделите набор данных на обучающий и тестовый наборы (80 % обучение, 20 % тестирование)
 X_train, X_test, y_train, y_test = train_test_split(test_text, test_topic, test_size=0.2, random_state=42)
 
-# Define different vectorization methods
+# Два метода векторизации
 vectorizers = {
     'CountVectorizer': CountVectorizer(),
     'TfidfVectorizer': TfidfVectorizer()
 }
 
-# Define different algorithms
+# Три алгоритма для машинного обучения
 models = {
     'Logistic Regression': LogisticRegression(),
     'Multinomial Naive Bayes': MultinomialNB(),
     'Random Forest': RandomForestClassifier()
 }
 
-# Train models based on different algorithms and vectorization methods
+# Обучение модели
 for vec_name, vectorizer in vectorizers.items():
     for model_name, model in models.items():
         # Vectorize the training and test data
         X_train_vec = vectorizer.fit_transform(X_train.values.astype('U'))
         X_test_vec = vectorizer.transform(X_test.values.astype('U'))
 
-        # Train the model
+        # Обучение
         model.fit(X_train_vec, y_train)
 
-        # Make predictions on the test set
+        # Делайте прогнозы на тестовом наборе
         y_pred = model.predict(X_test_vec)
 
-        # Evaluate the model
+        # Оценка точность
         accuracy = accuracy_score(y_test, y_pred)
 
         # Print the results
-        print(f'{vec_name} + {model_name} Accuracy: {accuracy:.4f}')
+        print(f'{vec_name} + {model_name} Точность: {accuracy:.4f}')
