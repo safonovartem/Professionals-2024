@@ -239,6 +239,7 @@ test_text = test['text']
 test_text = test_text[0:46]
 test_topic = test['category']
 test_topic = test_topic[0:46]
+print(test_text,test_topic)
 
 # Разделите набор данных на обучающий и тестовый наборы (80 % обучение, 20 % тестирование)
 X_train, X_test, y_train, y_test = train_test_split(test_text, test_topic, test_size=0.2, random_state=42)
@@ -260,8 +261,8 @@ models = {
 for vec_name, vectorizer in vectorizers.items():
     for model_name, model in models.items():
         # Vectorize the training and test data
-        X_train_vec = vectorizer.fit_transform(X_train)
-        X_test_vec = vectorizer.transform(X_test)
+        X_train_vec = vectorizer.fit_transform(X_train.values.astype('U'))
+        X_test_vec = vectorizer.transform(X_test.values.astype('U'))
 
         # Train the model
         model.fit(X_train_vec, y_train)
