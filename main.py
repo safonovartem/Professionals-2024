@@ -1,4 +1,5 @@
 import io
+import codecs
 import csv
 import os
 import shutil
@@ -44,10 +45,29 @@ pd.set_option('display.expand_frame_repr', False)
 
 #Добавляю датасет Data
 data = pd.read_csv('data.csv')
-parse_dates = ['Text']
-#print(data)
+# with codecs.open('data.csv','r','utf_8_sig') as file:
+#     lines = file.readline()
+#
+# text_list = []
+# topic_list = []
+#
+# for line in lines:
+#     text, topic = line.split(';')
+#     text_list.append(text.strip())
+#     topic_list.append(topic.strip())
+#
+# new_data = pd.DataFrame({'Text': text_list, 'Category': topic_list})
+# new_data.to_csv('new_data.csv', index=False)
+# new_data.to_csv('new_data.csv', index=False)
+# for row in data['Text']:
+#     category, text = row.split(';')
+#     text_list.append(text.strip())
+#     topic_list.append(category.strip())
+#
+# new_data = pd.DataFrame({'Text': text_list, 'Category': topic_list})
+# new_data.to_csv('new_data.csv', index=False)
 
-#Добавляю датасет Data
+#Добавляю датасет Demo
 demo = pd.read_csv('outer_msgs_demo.csv')
 parse_dates = ['Text']
 demo = demo['Text']
